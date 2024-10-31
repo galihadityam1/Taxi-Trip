@@ -1,23 +1,26 @@
 import { API_BASE_URL } from "@/app/utils/constant";
+import { params } from "@/Types";
 
-export const fetchTrips = async (params: any) => {
+export const fetchTrips = async (params: params) => {
     try {
         let url = API_BASE_URL + "/trips?"
 
-        if (params.time) {
-            url += `&time=${params.time}`
-        }
-        if (params.fare) {
-            url += `&fare=${params.fare}`
-        }
-        if (params.distance) {
-            url += `&distance=${params.distance}`
-        }
-        if (params.payment) {
-            url += `&payment=${params.payment}`
+        if(params){
+            if (params.time) {
+                url += `&time=${params.time}`
+            }
+            if (params.fare) {
+                url += `&fare=${params.fare}`
+            }
+            if (params.distance) {
+                url += `&distance=${params.distance}`
+            }
+            if (params.payment) {
+                url += `&payment=${params.payment}`
+            }
         }
 
-        let response = await fetch(
+        const response = await fetch(
             url,
             {
                 cache: 'no-cache'

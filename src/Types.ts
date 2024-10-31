@@ -1,7 +1,7 @@
 export interface TaxiTrip {
   vendor_id: string,
-  pickup_datetime: string;
-  dropoff_datetime: string;
+  pickup_datetime: Date;
+  dropoff_datetime: Date;
   pickup_longitude: number;
   pickup_latitude: number;
   dropoff_longitude: number;
@@ -9,6 +9,7 @@ export interface TaxiTrip {
   fare_amount: number;
   trip_distance: number;
   payment_type: string;
+  total_amount: string
 }
 
 export interface FilterState {
@@ -20,3 +21,10 @@ export interface FilterState {
   distanceRange: [number, number];
   paymentType: string;
 }
+
+export type params = {
+  time: string | null,
+  fare: string | null,
+  distance: string | null,
+  payment: string | null
+} | null;

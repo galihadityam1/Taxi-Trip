@@ -1,7 +1,8 @@
-"use client"
-import { useState, useEffect, useCallback } from 'react';
+// Import the necessary libraries and components as before
+"use client";
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Map, { Source, Layer, Popup, ViewState, MapLayerMouseEvent } from 'react-map-gl';
-import type { TaxiTrip, FilterState } from '@/Types';
+import type { TaxiTrip } from '@/Types';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MAPBOX_ACCESS_TOKEN } from './utils/constant';
 import TableTrips from './components/TableTrips';
@@ -25,16 +26,23 @@ const INITIAL_VIEW_STATE: ViewState = {
   padding: { top: 0, bottom: 0, left: 0, right: 0 }
 };
 
+// Component to load search parameters
+function SearchParamsWrapper({ onParamsLoaded }: { onParamsLoaded: (params: URLSearchParams) => void }) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    onParamsLoaded(searchParams);
+  }, [searchParams, onParamsLoaded]);
+
+  return null;
+}
+
 const Home = () => {
-  const searchParams = useSearchParams()
-  const [trips, setTrips] = useState<TaxiTrip[]>([]);
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [popupInfo, setPopupInfo] = useState<TripPopupInfo | null>(null);
   const [viewState, setViewState] = useState<ViewState>(INITIAL_VIEW_STATE);
 
   const onMouseEnter = useCallback((event: MapLayerMouseEvent) => {
     if (event.features && event.features[0]) {
-
       setPopupInfo({
         trip: event.features[0].properties as TaxiTrip,
         x: event.point.x,
@@ -47,48 +55,49 @@ const Home = () => {
     setPopupInfo(null);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async (searchParams: URLSearchParams) => {
     try {
-      const time = searchParams.get('time')
-      const fare = searchParams.get('fare')
-      const distance = searchParams.get('distance')
-      const payment = searchParams.get('payment')
-      const params = {
-        time,
-        fare,
-        distance,
-        payment
-      }
-     
-      let data: any = await fetchTrips(params)
-
-      if(data.details === null) {
-        setTrips([])
-        setFilteredTrips([])
-        return alert("Error Fetching Data")
+      const time = searchParams.get('time');
+      const fare = searchParams.get('fare');
+      const distance = searchParams.get('distance');
+      const payment = searchParams.get('payment');
+      const params = { time, fare, distance, payment };
+      let data;
+      if (time || fare || distance || payment) {
+        data = await fetchTrips(params);
+      } else {
+        data = await fetchTrips(null);
       }
 
-      setTrips(data);
       setFilteredTrips(data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  }
+  }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [searchParams]);
+  const handleParamsLoaded = useCallback(
+    (params: URLSearchParams) => {
+      fetchData(params);
+    },
+    [fetchData]
+  );
 
   return (
     <div className="h-screen w-full flex flex-row">
+      <Suspense fallback={<div>Loading search params...</div>}>
+        <SearchParamsWrapper onParamsLoaded={handleParamsLoaded} />
+      </Suspense>
+
       <div className="w-1/2 p-4 bg-white shadow-sm overflow-auto border-r-2 border-black">
-        <TableTrips data={filteredTrips} />
+        <Suspense fallback={<div>Loading trips...</div>}>
+          <TableTrips data={filteredTrips} />
+        </Suspense>
       </div>
 
       <div className="w-1/2 relative">
         <Map
           {...viewState}
-          onMove={evt => setViewState(evt.viewState)}
+          onMove={(evt) => setViewState(evt.viewState)}
           style={{ width: '100%', height: '100%' }}
           mapStyle="mapbox://styles/mapbox/light-v10"
           mapboxAccessToken={MAPBOX_TOKEN}
@@ -101,7 +110,7 @@ const Home = () => {
             type="geojson"
             data={{
               type: 'FeatureCollection',
-              features: (filteredTrips && filteredTrips.map((trip: any) => ({
+              features: (filteredTrips && filteredTrips.map((trip: TaxiTrip) => ({
                 type: 'Feature',
                 geometry: {
                   type: 'LineString',

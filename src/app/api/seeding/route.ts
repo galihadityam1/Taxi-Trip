@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import pool from "@/app/utils/postgres"
 import { supabase } from "@/app/lib/supabaseClient";
+import { TaxiTrip } from "@/Types";
 
 export async function GET() {
-    let data = await fetch(
+    const data = await fetch(
         `https://data.cityofnewyork.us/resource/gkne-dk5s.json?$limit=100`, {
         headers: {
             'Content-Type': 'application/json'
         }
     });
 
-    let response = await data.json()
+    const response = await data.json()
 
-    response.map(async (el: any) => {
+    response.map(async (el: TaxiTrip) => {
         const { error } = await supabase
             .from('trips')
             .insert(

@@ -4,8 +4,9 @@ import React from 'react'
 import TripData from './TripData'
 import Link from 'next/link'
 
-const TableTrips = ({ data }: any) => {
-    let href = '?filter=m_eq'
+
+const TableTrips = ({ data }: {data: TaxiTrip[]}) => {
+    const href = '?filter=m_eq'
     return (
         <div className="container mx-auto p-4">
             <div className="overflow-x-auto border">

@@ -1,15 +1,15 @@
 "use client"
 import { TaxiTrip } from '@/Types'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 const TripData = ({ trip, index }: { trip: TaxiTrip, index: number }) => {
     // Set Time format
-    const pickupTime: any = new Date(trip.pickup_datetime);
+    const pickupTime: Date = new Date(trip.pickup_datetime);
     const formatedTime = pickupTime.toLocaleString()
 
     // Set Distance format
-    const tripDistance: any = trip.trip_distance;
-    const formatDistance = parseFloat(tripDistance);
+    const tripDistance: number = trip.trip_distance;
+    const formatDistance = parseFloat(tripDistance.toString());
     return (
         <>
          <tr className="hover:bg-gray-50 transition-colors">

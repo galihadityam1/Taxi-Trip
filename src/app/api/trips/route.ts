@@ -1,5 +1,4 @@
 import { supabase } from "@/app/lib/supabaseClient";
-import pool from "@/app/utils/postgres";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -11,7 +10,7 @@ export async function GET(request: Request) {
     let pass = []
 
     if(!time && !payment && !fare && !distance){
-        const { data, error }: any = await supabase
+        const { data, error } = await supabase
             .from('trips')
             .select('*')
         if (error) return NextResponse.json(error)
@@ -83,8 +82,6 @@ export async function GET(request: Request) {
         pass = data
         }
     }
-
-    console.log(pass);
     
     return NextResponse.json(pass)
 }
