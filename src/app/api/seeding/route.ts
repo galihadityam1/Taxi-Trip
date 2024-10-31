@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "@/app/utils/postgres"
+import { supabase } from "@/app/lib/supabaseClient";
 
 export async function GET() {
     let data = await fetch(
@@ -10,36 +11,28 @@ export async function GET() {
     });
 
     let response = await data.json()
-    console.log(response);
+
     response.map(async (el: any) => {
-        await pool.query(
-`INSERT INTO trips (
-    vendor_id,
-    pickup_datetime,
-    dropoff_datetime,
-    trip_distance,
-    pickup_longitude,
-    pickup_latitude,
-    dropoff_longitude,
-    dropoff_latitude,
-    payment_type,
-    fare_amount,
-    total_amount
-) VALUES (
-    '${el.vendor_id}',
-    '${el.pickup_datetime}',
-    '${el.dropoff_datetime}',
-    '${el.trip_distance}',
-    '${el.pickup_longitude}',
-    '${el.pickup_latitude}',
-    '${el.dropoff_longitude}', 
-    '${el.dropoff_latitude}', 
-    '${el.payment_type}',
-    '${el.fare_amount}',
-    '${el.total_amount}'
-);`
-        )
+        const { error } = await supabase
+            .from('trips')
+            .insert(
+                {
+                    vendor_id: el.vendor_id,
+                    pickup_datetime: el.pickup_datetime,
+                    dropoff_datetime: el.dropoff_datetime,
+                    trip_distance: Number(el.trip_distance),
+                    pickup_longitude: Number(el.pickup_longitude),
+                    pickup_latitude: Number(el.pickup_latitude),
+                    dropoff_longitude: Number(el.dropoff_longitude),
+                    dropoff_latitude: Number(el.dropoff_latitude),
+                    payment_type: el.payment_type,
+                    fare_amount: Number(el.fare_amount),
+                    total_amount: Number(el.total_amount)
+                }
+            );
+
+        if (error) NextResponse.json(error)
     })
 
-    return NextResponse.json('done')
+    return NextResponse.json({ message: 'done' })
 }

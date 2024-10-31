@@ -1,3 +1,4 @@
+import { supabase } from "@/app/lib/supabaseClient";
 import pool from "@/app/utils/postgres";
 import { NextResponse } from "next/server";
 
@@ -7,43 +8,83 @@ export async function GET(request: Request) {
     const payment = searchParams.get('payment')
     const fare = searchParams.get('fare')
     const distance = searchParams.get('distance')
-    let data
-    let query = `
-            SELECT * 
-            FROM trips`
+    let pass = []
 
-            
-    if(payment){
-            query += ` WHERE payment_type = '${payment}'`
+    if(!time && !payment && !fare && !distance){
+        const { data, error }: any = await supabase
+            .from('trips')
+            .select('*')
+        if (error) return NextResponse.json(error)
+        pass = data
     }
-    
+
+    if (payment) {
+        const { data, error } = await supabase
+            .from('trips')
+            .select("*")
+            .eq('payment_type', payment)
+        if (error) return NextResponse.json(error)
+        pass = data
+    }
+
     if (time) {
         if (time === "newest") {
-            query += ` ORDER BY pickup_datetime DESC`
+            const { data, error } = await supabase
+            .from('trips')
+            .select("*")
+            .order('pickup_datetime', { ascending: false })
+        if (error) return NextResponse.json(error)
+        pass = data
         }
         if (time === "oldest") {
-            query += ` ORDER BY pickup_datetime ASC`
+            const { data, error } = await supabase
+            .from('trips')
+            .select("*")
+            .order('pickup_datetime', { ascending: true })
+        if (error) return NextResponse.json(error)
+        pass = data
         }
     }
 
     if (fare) {
-        if (fare === "cheapest") {
-            query += ` ORDER BY fare_amount ASC`
-        }
         if (fare === "expensive") {
-            query += ` ORDER BY fare_amount DESC`
+            const { data, error } = await supabase
+            .from('trips')
+            .select("*")
+            .order('fare_amount', { ascending: false })
+        if (error) return NextResponse.json(error)
+        pass = data
+        }
+        if (fare === "cheapest") {
+            const { data, error } = await supabase
+            .from('trips')
+            .select("*")
+            .order('fare_amount', { ascending: true })
+        if (error) return NextResponse.json(error)
+        pass = data
         }
     }
 
     if (distance) {
         if (distance === "farest") {
-            query += ` ORDER BY trip_distance DESC`
+            const { data, error } = await supabase
+            .from('trips')
+            .select("*")
+            .order('trip_distance', { ascending: false })            
+        if (error) return NextResponse.json(error)
+        pass = data
         }
         if (distance === "closest") {
-            query += ` ORDER BY trip_distance ASC`
+            const { data, error } = await supabase
+            .from('trips')
+            .select("*")
+            .order('trip_distance', { ascending: true })
+        if (error) return NextResponse.json(error)
+        pass = data
         }
     }
-    data = await pool.query(query)
 
-    return NextResponse.json(data.rows)
+    console.log(pass);
+    
+    return NextResponse.json(pass)
 }

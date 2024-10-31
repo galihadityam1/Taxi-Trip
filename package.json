@@ -12,6 +12,7 @@
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-slider": "^1.2.1",
+    "@supabase/supabase-js": "^2.46.1",
     "@turf/turf": "^7.1.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.454.0",

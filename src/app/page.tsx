@@ -28,7 +28,7 @@ const INITIAL_VIEW_STATE: ViewState = {
 const Home = () => {
   const searchParams = useSearchParams()
   const [trips, setTrips] = useState<TaxiTrip[]>([]);
-  const [filteredTrips, setFilteredTrips] = useState<any>(null);
+  const [filteredTrips, setFilteredTrips] = useState([]);
   const [popupInfo, setPopupInfo] = useState<TripPopupInfo | null>(null);
   const [viewState, setViewState] = useState<ViewState>(INITIAL_VIEW_STATE);
 
@@ -61,6 +61,13 @@ const Home = () => {
       }
      
       let data: any = await fetchTrips(params)
+
+      if(data.details === null) {
+        setTrips([])
+        setFilteredTrips([])
+        return alert("Error Fetching Data")
+      }
+
       setTrips(data);
       setFilteredTrips(data);
     } catch (error) {
@@ -94,7 +101,7 @@ const Home = () => {
             type="geojson"
             data={{
               type: 'FeatureCollection',
-              features: filteredTrips?.map((trip: any) => ({
+              features: (filteredTrips && filteredTrips.map((trip: any) => ({
                 type: 'Feature',
                 geometry: {
                   type: 'LineString',
@@ -104,7 +111,7 @@ const Home = () => {
                   ]
                 },
                 properties: trip
-              })) || []
+              }))) || []
             }}
           >
             <Layer
