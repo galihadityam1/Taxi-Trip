@@ -23,14 +23,17 @@ export const fetchTrips = async (params: params) => {
         const response = await fetch(
             url,
             {
-                cache: 'no-cache'
+                cache: 'no-cache',
+                mode: 'no-cors'
             });
 
+            console.log(response);
+            
 
         if (!response.ok) alert("Error Fetching Data")
         const data = await response.json();
-        return data
 
+        return data
     } catch (error) {
         console.error('Error fetching data:', error);
     }

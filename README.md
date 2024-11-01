@@ -15,7 +15,7 @@ These instructions will guide you to set up and run this project on your local m
 1. Clone this repository:
 
     ```bash
-    git clone https://github.com/your-username/your-repository.git
+    git clone https://github.com/your-username/Taxi-Trip.git
     cd your-repository
     ```
 

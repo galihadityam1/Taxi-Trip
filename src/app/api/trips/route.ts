@@ -1,7 +1,7 @@
 import { supabase } from "@/app/lib/supabaseClient";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET(request: Request) {    
     const { searchParams } = new URL(request.url);
     const time = searchParams.get('time')
     const payment = searchParams.get('payment')
